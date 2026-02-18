@@ -14,7 +14,7 @@ export function extractEditorView(editor: Editor): EditorView {
 /**
  * Regex for extracting the language from the starting line of a code block.
  */
-const CODE_LANG_REGEX = /^```(.*)$/;
+const CODE_LANG_REGEX = /^`{3,}(.*)$/;
 
 /**
  * Find the language of the code block at the given line.
