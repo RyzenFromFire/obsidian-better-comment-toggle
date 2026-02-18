@@ -7,7 +7,10 @@
 - Easily toggle comments line-by-line or over a selected range of lines
 - Configure the start and end tokens for toggled comments
 - Change the appearance of commented lines
-- Support for both code and math blocks (including custom languages)
+- Support for:
+  - code blocks (including custom languages)
+  - LaTeX/MathJax/math blocks/environments
+  - Templater JS execution scripts/templates
 - Maintains indentation
 
 ## Demos
@@ -37,7 +40,7 @@ It's recommended to replace the existing keybinding for Obsidian's comment toggl
 
 ## Support
 
-This plugin is totally free to use! I have a lot of fun making stuff like this, so I never expect any type of financial compensation. But if you enjoy the plugin and are feeling generous, I certainly won't say no to a cup of coffee!
+Please support the original author of this plugin: 
 
 <a href="https://www.buymeacoffee.com/ginov"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=ginov&button_colour=007a8a&font_colour=ffffff&font_family=Cookie&outline_colour=ffffff&coffee_colour=FFDD00" /></a>
 
