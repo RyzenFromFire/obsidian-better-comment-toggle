@@ -264,6 +264,14 @@ const languages = {
 		commentStart: '//',
 		commentEnd: '',
 	},
+	verilog: {
+		commentStart: '//',
+		commentEnd: '',
+	},
+	vhdl: {
+		commentStart: '--',
+		commentEnd: '',
+	},
 	wasm: {
 		commentStart: ';;',
 		commentEnd: '',

@@ -1,6 +1,7 @@
 import { EditorView } from '@codemirror/view';
 import { Editor } from 'obsidian';
 import { syntaxTree } from '@codemirror/language';
+import { Settings } from '../settings';
 
 /**
  * Extract a CodeMirror {@link EditorView} from an Obsidian {@link Editor}.
@@ -14,7 +15,7 @@ export function extractEditorView(editor: Editor): EditorView {
 /**
  * Regex for extracting the language from the starting line of a code block.
  */
-const CODE_LANG_REGEX = /^`{3,}(.*)$/;
+const CODE_LANG_REGEX = /^[`~]{3,}(.*)$/;
 
 /**
  * Find the language of the code block at the given line.
@@ -22,43 +23,52 @@ const CODE_LANG_REGEX = /^`{3,}(.*)$/;
  * If the line is not in a code block, returns `null`.
  * If it is in a code block, returns the language name (or any text following the starting "```").
  */
-export function findCodeLang(editor: Editor, line: number): string | null {
+export function findCodeLang(settings: Settings, editor: Editor, line: number): string | null {
 	const view = extractEditorView(editor);
 
 	// Lines are 1-indexed so we need to add 1
-	const linePos = view.state.doc.line(line + 1).from;
+	// Note that this is the position of the character of the start of the line
+	// Using the position of the original line the cursor was on, 
+	// once we find a codeblock by via back-scanning, verify that we are inside of it.
+	const originalLineStartPos = view.state.doc.line(line + 1).from;
 
-	// Set `side` to `1` so we only get the node starting at this line (i.e. not the topmost `Document`)
-	const cursor = syntaxTree(view.state).cursorAt(linePos, 1);
+	// which line we are currently (starting) on (line index/number, not character index/position)
+	const originalLineNum = line;
+	let currentLineNum = line;
 
-	// First, check if we're in a code block
-	if (!cursor.type.name.contains('hmd-codeblock')) {
-		return null;
-	}
+	const MAX_SCAN_LINES = settings.maxScanLines;
 
-	// Find the start of the code block
-	let found = false;
-	let { from, to } = cursor;
-	while (line > 0) {
-		line--;
-		const linePos = view.state.doc.line(line + 1).from;
-		const cursor = syntaxTree(view.state).cursorAt(linePos, 1);
-		if (!cursor.type.name.contains('hmd-codeblock')) {
-			found = true;
-			break;
+	while (currentLineNum >= 0 && (originalLineNum - currentLineNum) < MAX_SCAN_LINES) {
+		const text = view.state.doc.line(currentLineNum + 1).text;
+
+		// * Support for Templater JS scripts
+		// this will scan for `<%* ... %>`
+		const tOpen = text.lastIndexOf("<%*");
+		const tClose = Math.max(
+			text.lastIndexOf("%>"), 
+			text.lastIndexOf("-%>"), 
+			text.lastIndexOf("_%>")
+		);
+
+		if (tOpen > -1 || tClose > -1) {
+			// we have found a Templater tag, so check if we're inside of it or not and return appropriately
+			if (tOpen > tClose) return "js";
+			if (tClose > tOpen) return null;
 		}
 
-		from = cursor.from;
-		to = cursor.to;
-	}
+		// * Check standard Markdown codeblock syntax
+		// we assume that any sequence of only backticks/tildes is an end fence
+		// which means that codeblocks with an unspecified language will take the default comment (Obsidian/HTML/Custom)
 
-	if (!found) {
-		return null;
+		const match = CODE_LANG_REGEX.exec(text);
+		if (match) {
+			// `match?.at(1)?.trim()` gives the actual language (e.g., "cpp") -- so we found a start fence (e.g., "```cpp")
+			// if it's null, we found an end fence (e.g., "```")
+			return match?.at(1)?.trim() ?? null;
+		}		
+		currentLineNum--;
 	}
-
-	const text = view.state.sliceDoc(from, to);
-	const matches = CODE_LANG_REGEX.exec(text);
-	return matches?.at(1)?.trim() ?? null;
+	return null;
 }
 
 /**

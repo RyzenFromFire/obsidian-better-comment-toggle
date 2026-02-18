@@ -7,6 +7,7 @@ export const DEFAULT_SETTINGS: DeepReadonly<Settings> = {
 	customCommentStart: '<!--',
 	customCommentEnd: '-->',
 	dropCursor: false,
+	maxScanLines: 2000,
 	appearance: {
 		showBackground: false,
 		backgroundColor: '#191919',

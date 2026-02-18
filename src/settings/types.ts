@@ -9,6 +9,10 @@ export interface Settings {
 	 */
 	dropCursor: boolean;
 	/**
+	 * Determines how many lines will be scanned when using text scanning to detect codeblocks.
+	 */
+	maxScanLines: number;
+	/**
 	 * If true, overrides the appearance of commented lines with {@link appearance}.
 	 */
 	overrideAppearance: boolean;

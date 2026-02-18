@@ -133,6 +133,29 @@ export class SettingsTab extends PluginSettingTab {
 					}),
 			{ refreshAppearance: false },
 		);
+
+		this.add(
+			['maxScanLines'],
+			(setting, apply) =>
+				setting
+					.setName('Maximum scan lines')
+					.setDesc('The number of text lines to scan backwards when detecting codeblocks.')
+					.addText((text) => {
+						text.inputEl.type = "number";
+						text
+							.setPlaceholder("2000")
+							.setValue(String(this.plugin.settings.maxScanLines))
+							.onChange(async (value: string) => {
+								if (value) {
+									this.plugin.settings.maxScanLines = parseInt(value);
+								} else {
+									this.plugin.settings.maxScanLines = 2000;
+								}
+								await apply();
+							});
+					}),
+			{ refreshAppearance: false },
+		);
 	}
 
 	private createExampleSection() {

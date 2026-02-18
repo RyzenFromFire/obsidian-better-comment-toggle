@@ -125,7 +125,7 @@ export class LineCommentController {
 			return ['%', ''];
 		}
 
-		const lang = findCodeLang(this.editor, line);
+		const lang = findCodeLang(this.settings, this.editor, line);
 		return getCommentTokens(this.settings, lang);
 	}
 
